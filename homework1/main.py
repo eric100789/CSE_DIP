@@ -12,7 +12,7 @@ import cv2
 X = 1
 _img_tk = None
 Picture_data = {
-    "enhance" : 1,
+    "enhance" : (-1,-1,-1),
     "rotate" : 0,
     "size" : 1,
     "upper": 0,
@@ -40,7 +40,43 @@ def setPicture(enhance=None, rotate=None, size=None, upper=None, lower=None, gra
     elif(graySlice == False):
         Picture_data["graySlice"] = False
 
-    _img = ImageEnhance.Contrast(img).enhance( Picture_data["enhance"])
+
+    if(Picture_data["enhance"][2] == -1):
+        pass
+
+    elif(Picture_data["enhance"][2] == 1):
+        _img = Image.new("L", (img.size[0], img.size[1]))
+        for x in range(img.size[0]):
+            for y in range(img.size[1]):
+                val = Picture_data["enhance"][0] * img.getpixel((x, y)) + Picture_data["enhance"][1]
+                if val >= 255:
+                    val = 255
+                if val <= 0:
+                    val = 0
+                _img.putpixel((x, y), int(val))
+
+    elif(Picture_data["enhance"][2] == 2):
+        _img = Image.new("L", (img.size[0], img.size[1]))
+        for x in range(img.size[0]):
+            for y in range(img.size[1]):
+                val = exp(Picture_data["enhance"][0]) * img.getpixel((x, y)) + Picture_data["enhance"][1]
+                if val >= 255:
+                    val = 255
+                if val <= 0:
+                    val = 0
+                _img.putpixel((x, y), int(val))
+
+    elif(Picture_data["enhance"][2] == 3):
+        _img = Image.new("L", (img.size[0], img.size[1]))
+        for x in range(img.size[0]):
+            for y in range(img.size[1]):
+                val = log(Picture_data["enhance"][0]) * img.getpixel((x, y)) + Picture_data["enhance"][1]
+                if val >= 255:
+                    val = 255
+                if val <= 0:
+                    val = 0
+                _img.putpixel((x, y), int(val))
+
     _img = _img.rotate(Picture_data["rotate"])
 
     if(Picture_data["graySlice"]):
@@ -55,7 +91,7 @@ def setPicture(enhance=None, rotate=None, size=None, upper=None, lower=None, gra
                 sliced_img.putpixel((x, y), int(val))
         _img = sliced_img
 
-    if(size):
+    if(size and not save):
         new_img = _img.resize((int(300*Picture_data["size"]),int(300*Picture_data["size"])))
         new_img.show()
 
@@ -74,23 +110,22 @@ def setPicture(enhance=None, rotate=None, size=None, upper=None, lower=None, gra
     lbl_picture.grid(row=100,column=2)
 
 def ClickLinButton(button,a,b):
-    setPicture(enhance = float(a)*X+float(b))
     try:
-        setPicture(enhance = float(a)*X+float(b))
+        setPicture(enhance = (float(a),float(b),1) )
     except:
         msg = "Please input floating number"
         tkinter.messagebox.showerror(title = 'Error:Enhance', message = msg)  
 
 def ClickExpButton(button,a,b):
     try:
-        setPicture(exp(float(a))*X+float(b))
+        setPicture(enhance=(float(a),float(b),2))
     except:
         msg = "Please input floating number"
         tkinter.messagebox.showerror(title = 'Error:Enhance', message = msg)  
 
 def ClickLogButton(button,a,b):
     try:
-        setPicture(log(float(a))*X+float(b))
+        setPicture(enhance=(float(a),float(b),3))
     except:
         msg = "Please input floating number"
         tkinter.messagebox.showerror(title = 'Error:Enhance', message = msg)  
@@ -138,8 +173,11 @@ def ClickSlicePreserveOn():
     but_slic = tkinter.Button(window, text= "Off", command=lambda: ClickSliceOff(ent_slic_lower.get(),ent_slic_upper.get()))
     but_slic.grid(row=10, column=1)
 
-def ClickSaveButton(name):
-    setPicture(save=True, name=name)
+def ClickSaveButton(name, size):
+    try:
+        setPicture(save=True, name=name, size=int(size))
+    except:
+        setPicture(save=True, name=name)
 
 if __name__ == '__main__':
     print("main.py is ready")
@@ -226,7 +264,7 @@ if __name__ == '__main__':
     # save button
     lbl_save = tkinter.Label(window, text = "Input Picture Name:", font=("Arial",9))
     ent_save = tkinter.Entry(window, width=20)
-    but_save = tkinter.Button(window, text = "Save", command=lambda: ClickSaveButton(ent_save.get()))
+    but_save = tkinter.Button(window, text = "Save", command=lambda: ClickSaveButton(ent_save.get(), ent_zoom.get()))
 
     lbl_save.grid(row=12, column=1, padx= 10, pady=5)
     ent_save.grid(row=12, column=2, padx= 10, pady=5)
