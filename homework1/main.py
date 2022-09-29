@@ -1,13 +1,8 @@
-from configparser import Interpolation
-from distutils.cmd import Command
-import numpy as np
-from PIL import Image, ImageTk, ImageEnhance
+from PIL import Image, ImageTk
 import tkinter
 import tkinter.messagebox
 from tkinter.constants import *
 from math import exp,log
-import matplotlib.pyplot as plt
-import cv2
 
 # used _img_tk to save img which is adjusted by users
 _img_tk = None
@@ -24,6 +19,8 @@ Picture_data = {
 
 def setPicture(enhance=None, rotate=None, size=None, upper=None, lower=None, graySlice=None, save=None, name=None):
     global lbl_picture,img,window,_img_tk,Picture_data
+
+    _img = img
 
     if(enhance):
         Picture_data["enhance"] = enhance
