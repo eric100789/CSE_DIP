@@ -9,8 +9,9 @@ from math import exp,log
 import matplotlib.pyplot as plt
 import cv2
 
-X = 1
+# used _img_tk to save img which is adjusted by users
 _img_tk = None
+# save adjusted data to make users can have lots of setting 
 Picture_data = {
     "enhance" : (-1,-1,-1),
     "rotate" : 0,
