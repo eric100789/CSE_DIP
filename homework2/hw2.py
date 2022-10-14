@@ -7,22 +7,36 @@ from tkinter.constants import *
 from math import exp,log
 import matplotlib.pyplot as plt
 import numpy as np
+from sqlalchemy import values
+from statistics import median
 
 load = None
 _load = None
 pixel = None
 
 def ClickOpen():#function for opening file
-	global img, _img, load, _load, pixel
-	name = fd.askopenfilename()
-	_load = Image.open(name)
-	load = Image.open(name)
-	pixel = load.load()
-	render = ImageTk.PhotoImage(load)
-	img.config(image = render, width = 512, height = 512)
-	img.image = render
-	_img.config(image = render, width = 512, height = 512)
-	_img.image = render
+    global img, _img, load, _load, pixel
+    name = fd.askopenfilename()
+    if name[-3:] == "raw":
+        with open(name, 'rb') as f:
+            name = Image.frombytes("L", (512, 512), f.read(), 'raw')
+        _load = name
+        load = name.copy()
+        pixel = load.load()
+        render = ImageTk.PhotoImage(load)
+        img.config(image = render, width = 512, height = 512)
+        img.image = render
+        _img.config(image = render, width = 512, height = 512)
+        _img.image = render
+    else:
+        _load = Image.open(name)
+        load = Image.open(name)
+        pixel = load.load()
+        render = ImageTk.PhotoImage(load)
+        img.config(image = render, width = 512, height = 512)
+        img.image = render
+        _img.config(image = render, width = 512, height = 512)
+        _img.image = render
 
 def ClickSave():
     global _load
@@ -161,6 +175,83 @@ def ClickSmooth(num):
         except:
             msg = "不要轉移我的話題，說愛我..."
             tkinter.messagebox.showerror(title = '請輸入浮點數', message = msg)
+def ClickMask():
+    global select_window
+
+    if not _load:
+        msg = "什麼樣的面具都遮不住沒面子的人"
+        tkinter.messagebox.showerror(title = '圖片還是沒有', message = msg)
+        return
+        
+    select_window = tkinter.Tk()
+
+    def DoMask(mode = "Normal Mask"):
+        global _load,render,_img
+        try:
+            nparr = []
+            dt = np.dtype(np.float64)
+
+            for x in range(_load.size[0]):
+                arr = []
+                for y in range(_load.size[1]):
+                    arr.append(_load.getpixel((x, y)))
+                nparr.append(arr.copy())
+            nparr = np.array(nparr, dt)
+            nparr = np.c_[nparr,np.zeros((_load.size[1],1))]
+            nparr = np.c_[np.zeros((_load.size[1],1)),nparr]
+            nparr = np.r_[np.zeros((1,_load.size[0]+2)),nparr]
+            nparr = np.r_[nparr,np.zeros((1,_load.size[0]+2))]
+            _nparr = nparr.copy()
+            
+            if(mode == "Laplacian 1st"):
+                for x in range(1,_load.size[0]+1):
+                    for y in range(1,_load.size[1]+1):
+                        _nparr[x][y] = round(nparr[x][y]*4 - nparr[x-1][y] - nparr[x+1][y] - nparr[x][y+1] - nparr[x][y-1])
+                _nparr = _nparr+nparr
+            elif(mode == "Laplacian 2st"):
+                for x in range(1,_load.size[0]+1):
+                    for y in range(1,_load.size[1]+1):
+                        _nparr[x][y] = round(nparr[x][y]*8 - nparr[x-1][y] - nparr[x+1][y] - nparr[x+1][y+1] - nparr[x-1][y-1] - nparr[x][y+1] - nparr[x][y-1] - nparr[x-1][y+1] - nparr[x+1][y-1])
+                _nparr = _nparr+nparr
+            elif(mode == "Laplacian 3st"):
+                for x in range(1,_load.size[0]+1):
+                    for y in range(1,_load.size[1]+1):
+                        _nparr[x][y] = round(nparr[x][y]*4 - nparr[x-1][y]*2 - nparr[x+1][y]*2 + nparr[x+1][y+1] + nparr[x-1][y-1] - nparr[x][y+1]*2 - nparr[x][y-1]*2 + nparr[x-1][y+1] + nparr[x+1][y-1])
+                _nparr = _nparr+nparr
+            elif(mode == "3x3 Median Filter"):
+                for x in range(1,_load.size[0]+1):
+                    for y in range(1,_load.size[1]+1):
+                        _nparr[x][y] = round(median([nparr[x][y],nparr[x-1][y],nparr[x+1][y],nparr[x+1][y+1],nparr[x-1][y-1],nparr[x][y+1],nparr[x][y-1],nparr[x-1][y+1],nparr[x+1][y-1]]))
+            else:
+                for x in range(1,_load.size[0]+1):
+                    for y in range(1,_load.size[1]+1):
+                        _nparr[x][y] = round((nparr[x][y] + nparr[x-1][y] + nparr[x+1][y] + nparr[x+1][y+1] + nparr[x-1][y-1] + nparr[x][y+1] + nparr[x][y-1] + nparr[x-1][y+1] + nparr[x+1][y-1])/9)
+            
+            new_img = _load.load()
+
+            for x in range(1,_load.size[0]+1):
+                for y in range(1,_load.size[1]+1):
+                    new_img[x-1,y-1] = int(_nparr[x][y])
+            render = ImageTk.PhotoImage(_load)
+            _img.config(image = render)
+            _img.image = render
+        except:
+            pass
+        select_window.destroy()
+
+    select_window.title("Choose your mask mode")
+    lbl = tkinter.Label(select_window, text = "Choose your mask mode",font=("Arial",9))
+    lst = ttk.Combobox(select_window, values = ["3x3 Averaging Mask","3x3 Median Filter","Laplacian 1st","Laplacian 2st","Laplacian 3st"])
+    btn_a = tkinter.Button(select_window, width = 7, height = 1, font=("Arial",9), text= "OK", command= lambda: DoMask(mode = lst.get()))
+    btn_b = tkinter.Button(select_window, width = 7, height = 1, font=("Arial",9), text= "Cancel", command=lambda: select_window.destroy())
+    lbl2 = tkinter.Label(select_window, text = "附註：3x3 Median Filter需先手動按一邊",font=("Arial",9))
+    lbl.grid(column=1, row=0)
+    lst.grid(column=1, row=1, pady=10)
+    btn_a.grid(column=0, row=2,padx=10,pady=10)
+    btn_b.grid(column=2, row=2,padx=10,pady=10)
+    lbl2.grid(column=1, row=3)
+    select_window.mainloop()
+
 
 if __name__ == '__main__':
     print("main.py is ready")
@@ -205,6 +296,9 @@ if __name__ == '__main__':
     btn_smoothing = tkinter.Button(window, text = 'Smoothing', bg = 'yellow', font = ('Arial', 18), width = 8, height = 1, command = lambda : ClickSmooth(ent_smoothing.get()))
     ent_smoothing = tkinter.Entry(window,width=10, background="yellow")
 
+    # click cover
+    btn_cover1 = tkinter.Button(window, text = 'Mask', bg = 'yellow', font = ('Arial', 18), width = 8, height = 1, command = lambda : ClickMask())
+
     #place
     img.place(x = 175, y = 20)
     _img.place(x = 700, y = 20)
@@ -219,6 +313,7 @@ if __name__ == '__main__':
     ent_sharpen.place(x=15, y= 550)
     btn_smoothing.place(x=15, y= 575)
     ent_smoothing.place(x=15, y= 625)
+    btn_cover1.place(x=15, y=650)
 
     # draw the window, and start the application
     window.mainloop()
