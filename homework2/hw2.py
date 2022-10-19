@@ -4,10 +4,8 @@ import tkinter.messagebox
 from tkinter import ttk
 from tkinter import filedialog as fd
 from tkinter.constants import *
-from math import exp,log
 import matplotlib.pyplot as plt
 import numpy as np
-from sqlalchemy import values
 from statistics import median
 
 load = None
