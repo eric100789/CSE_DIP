@@ -16,7 +16,7 @@ def DIPimg():
     pass
 
 def LennaColor():
-    tkinter.messagebox.showinfo(title = 'Running', message = "請稍等至視窗跳出")
+    tkinter.messagebox.showinfo(title = 'Running', message = "請稍等至視窗跳出（約12秒）")
     window.destroy()
     Question4()
 
