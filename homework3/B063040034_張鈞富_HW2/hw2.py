@@ -82,7 +82,7 @@ def Sharpening():#銳利化
 		load2 = load2.filter(ImageFilter.SHARPEN)
 		render = ImageTk.PhotoImage(load2)
 		img2.config(image = render)
-		mg2.image = render
+		img2.image = render
 
 def FFT():
 	global img, img2, btn21, load, load2

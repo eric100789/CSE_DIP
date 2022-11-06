@@ -2,9 +2,10 @@ import tkinter
 import tkinter.messagebox
 from tkinter.constants import *
 from hw3_1 import Question1
+from hw3_4 import Question4
 
 def BarTest():
-    tkinter.messagebox.showinfo(title = 'Running', message = "請稍等至視窗跳出")
+    tkinter.messagebox.showinfo(title = 'Running', message = "請稍等至視窗跳出（約6秒）")
     window.destroy()
     Question1()
 
@@ -15,7 +16,9 @@ def DIPimg():
     pass
 
 def LennaColor():
-    pass
+    tkinter.messagebox.showinfo(title = 'Running', message = "請稍等至視窗跳出")
+    window.destroy()
+    Question4()
 
 if __name__ == '__main__':
     print("main.py is ready")
