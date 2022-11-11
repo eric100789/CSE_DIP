@@ -3,7 +3,6 @@ import tkinter
 import tkinter.messagebox
 from tkinter.constants import *
 import numpy as np
-from statistics import median
 from math import cos
 
 window = None
@@ -232,7 +231,7 @@ def ProperMask(num = 14):
 
     for x in range(LoadList[0].size[0]):
         for y in range(LoadList[0].size[1]):
-            if h_load[x,y][0]!=0 and s_load[x,y][0]>150 :
+            if h_load[x,y][0]!=0 and s_load[x,y][0]>125 :
                 LoadList[num].putpixel( (x,y), (255,255,255) )
             else:
                 LoadList[num].putpixel((x,y), (0,0,0))
@@ -263,7 +262,7 @@ def Question4():
         "HSI Sharpen Filter 5x5",
         "RGB Smoothing Filter 5x5",
         "HSI Smoothing Filter 5x5",
-        "Proper Mask (Hue=0, Saturation>150)"
+        "Proper Mask (Hue=0, Saturation>125)"
     ]
 
     ColorImage("R", num= 1)

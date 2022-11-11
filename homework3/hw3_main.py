@@ -2,6 +2,8 @@ import tkinter
 import tkinter.messagebox
 from tkinter.constants import *
 from hw3_1 import Question1
+from hw3_2 import Question2
+from hw3_3 import Question3
 from hw3_4 import Question4
 
 def BarTest():
@@ -10,10 +12,14 @@ def BarTest():
     Question1()
 
 def Lenna():
-    pass
+    tkinter.messagebox.showinfo(title = 'Running', message = "請稍等至視窗跳出（約0.35秒）")
+    window.destroy()
+    Question2()
 
 def DIPimg():
-    pass
+    tkinter.messagebox.showinfo(title = 'Running', message = "請稍等至視窗跳出（約1.5秒）")
+    window.destroy()
+    Question3()
 
 def LennaColor():
     tkinter.messagebox.showinfo(title = 'Running', message = "請稍等至視窗跳出（約12秒）")
