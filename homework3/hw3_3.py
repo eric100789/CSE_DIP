@@ -100,7 +100,7 @@ def Question3():
     window = tkinter.Tk()
     window.title("Hw 3-3")
 
-    LoadPicture("lenna.tif")
+    LoadPicture("DIP_image.tif")
 
     TitleList = [
         "Origin",
