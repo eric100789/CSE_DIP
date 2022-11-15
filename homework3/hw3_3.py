@@ -3,9 +3,7 @@ import tkinter
 import tkinter.messagebox
 from tkinter.constants import *
 import numpy as np
-from statistics import median
 import cv2
-from matplotlib import pyplot as plt
 
 window = None
 ALL_NUM = 7
