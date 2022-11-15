@@ -111,6 +111,8 @@ def Question3():
         "Inverse DFT",
         "Multiplied"
     ]
+    explain = tkinter.Label(window, text="Explain:\n傅利葉轉換後的逆轉換\n圖片會一樣\n而共軛會讓圖片倒過來", font=("Arial",18))
+    explain.grid(row=3,column=3)
 
     for i in range(ALL_NUM):
         try:

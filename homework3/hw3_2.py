@@ -10,6 +10,7 @@ NUM_PER_ROW = 5
 
 def FFT_2D(num1 = 1, num2 = 2, num3 = 3):
     global LoadList, ImgList
+
     f1 = np.fft.fft2(np.array(LoadList[num1]))
     fshift1 = np.fft.fftshift(f1)
 
@@ -21,7 +22,6 @@ def FFT_2D(num1 = 1, num2 = 2, num3 = 3):
     magnitude_spectrum = 20 * np.log(np.abs(fshift1))
     phase_spectrum = np.angle(fshift2)
     inverse = np.abs(np.fft.ifft2(fshift3))
-    
 
     dst1 = Image.fromarray(magnitude_spectrum)
     image1 = ImageTk.PhotoImage(dst1)

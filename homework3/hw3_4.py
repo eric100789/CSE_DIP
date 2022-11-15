@@ -95,6 +95,7 @@ def Enhance(num = 9):
 	ImgList[num].config(image = render)
 	ImgList[num].image = render
 
+"""
 def SharpenFilter5x5(tar = 0, num = 10):
     global LoadList, ImgList
     loaded = LoadList[tar]
@@ -151,9 +152,9 @@ def SharpenFilter5x5(tar = 0, num = 10):
             temp_g = 16*np_g[x][y] - 2*(np_g[x][y-1] + np_g[x][y+1] + np_g[x+1][y] + np_g[x-1][y])
             temp_g -= np_g[x][y-2] + np_g[x][y+2] + np_g[x+2][y] + np_g[x-2][y] + np_g[x-1][y-1] + np_g[x+1][y-1] + np_g[x+1][y+1] + np_g[x-1][y+1]
 
-            _np_r[x][y] = round( temp_r )
-            _np_g[x][y] = round( temp_g )
-            _np_b[x][y] = round( temp_b )
+            _np_r[x][y] = np_r[x][y]+round( temp_r )
+            _np_g[x][y] = np_g[x][y]+round( temp_g )
+            _np_b[x][y] = np_b[x][y]+round( temp_b )
 
     for x in range(2,loaded.size[0]+2):
         for y in range(2,loaded.size[1]+2):
@@ -161,6 +162,72 @@ def SharpenFilter5x5(tar = 0, num = 10):
     render = ImageTk.PhotoImage(LoadList[num])
     ImgList[num].config(image = render)
     ImgList[num].image = render
+"""
+
+def SharpenFilter5x5(tar = 0, num = 10):
+    global LoadList, ImgList
+    loaded = LoadList[tar]
+    pixel = LoadList[tar].load()
+    np_r, np_g, np_b = [],[],[]
+    dt = np.dtype(np.float64)
+
+    for x in range(loaded.size[0]):
+        arr_r = []
+        arr_g = []
+        arr_b = []
+        for y in range(loaded.size[1]):
+            arr_r.append(pixel[x,y][0])
+            arr_g.append(pixel[x,y][1])
+            arr_b.append(pixel[x,y][2])
+        np_r.append(arr_r.copy())
+        np_g.append(arr_g.copy())
+        np_b.append(arr_b.copy())
+    np_r = np.array(np_r, dt)
+    np_g = np.array(np_g, dt)
+    np_b = np.array(np_b, dt)
+
+    np_r = np.c_[np_r,np.zeros((loaded.size[1],1))]
+    np_r = np.c_[np.zeros((loaded.size[1],1)),np_r]
+    np_r = np.r_[np.zeros((2,loaded.size[0]+2)),np_r]
+    np_r = np.r_[np_r,np.zeros((2,loaded.size[0]+2))]
+
+    np_g = np.c_[np_g,np.zeros((loaded.size[1],1))]
+    np_g = np.c_[np.zeros((loaded.size[1],1)),np_g]
+    np_g = np.r_[np.zeros((2,loaded.size[0]+2)),np_g]
+    np_g = np.r_[np_g,np.zeros((2,loaded.size[0]+2))]
+
+    np_b = np.c_[np_b,np.zeros((loaded.size[1],1))]
+    np_b = np.c_[np.zeros((loaded.size[1],1)),np_b]
+    np_b = np.r_[np.zeros((2,loaded.size[0]+2)),np_b]
+    np_b = np.r_[np_b,np.zeros((2,loaded.size[0]+2))]
+
+    _np_r = np_r.copy()
+    _np_g = np_g.copy()
+    _np_b = np_b.copy()
+            
+    for x in range(1,loaded.size[0]+1):
+        for y in range(1,loaded.size[1]+1):
+            temp_r = 0
+            temp_g = 0
+            temp_b = 0
+
+            temp_r = 8*np_r[x][y] - (np_r[x][y-1] + np_r[x][y+1] + np_r[x+1][y] + np_r[x-1][y] + np_r[x+1][y+1] + np_r[x-1][y+1] + np_r[x+1][y-1] + np_r[x-1][y-1])
+
+            temp_b = 8*np_b[x][y] - (np_b[x][y-1] + np_b[x][y+1] + np_b[x+1][y] + np_b[x-1][y] + np_b[x+1][y+1] + np_b[x-1][y+1] + np_b[x+1][y-1] + np_b[x-1][y-1])
+
+            temp_g = 8*np_g[x][y] - (np_g[x][y-1] + np_g[x][y+1] + np_g[x+1][y] + np_g[x-1][y] + np_g[x+1][y+1] + np_g[x-1][y+1] + np_g[x+1][y-1] + np_g[x-1][y-1])
+
+            _np_r[x][y] = np_r[x][y] + round( temp_r )
+            _np_g[x][y] = np_g[x][y] + round( temp_g )
+            _np_b[x][y] = np_b[x][y] + round( temp_b )
+
+    for x in range(2,loaded.size[0]+2):
+        for y in range(2,loaded.size[1]+2):
+            LoadList[num].putpixel((x-2,y-2) , (int(_np_r[x][y]),int(_np_g[x][y]),int(_np_b[x][y])) )
+    render = ImageTk.PhotoImage(LoadList[num])
+    ImgList[num].config(image = render)
+    ImgList[num].image = render
+
 
 def SmoothFilter5x5(tar = 0, num = 12):
     global LoadList, ImgList
@@ -258,8 +325,8 @@ def Question4():
         "HSI",
         "ColorComplement",
         "RGB Enhance",
-        "RGB Sharpen Filter 5x5",
-        "HSI Sharpen Filter 5x5",
+        "Laplacian RGB Sharpen Filter",
+        "Laplacian HSI Sharpen Filter",
         "RGB Smoothing Filter 5x5",
         "HSI Smoothing Filter 5x5",
         "Proper Mask (Hue=0, Saturation>125)"
