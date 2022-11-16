@@ -15,12 +15,16 @@ def FFT_2D(num1 = 1, num2 = 2, num3 = 3):
     fshift1 = np.fft.fftshift(f1)
 
     f2 = np.fft.fft2(np.array(LoadList[num2]))
+    rows, cols = 256,256
+    crow,ccol = int(rows/2), int(cols/2)
     fshift2 = np.fft.fftshift(f2)
+    fshift2[crow-30:crow+30, ccol-30:ccol+30] = 0
+    fshift2 = np.fft.ifftshift(fshift2)
 
     fshift3 = np.fft.ifftshift(fshift1)
 
     magnitude_spectrum = 20 * np.log(np.abs(fshift1))
-    phase_spectrum = np.angle(fshift2)
+    phase_spectrum = np.abs(np.fft.ifft2(fshift2))
     inverse = np.abs(np.fft.ifft2(fshift3))
 
     dst1 = Image.fromarray(magnitude_spectrum)
